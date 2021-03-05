@@ -2,7 +2,10 @@ extends layout
 
 block content
   h1 New Book
-  form(action="post")
+
+  include errors
+
+  form(action="/books/new" method="post")
     p
       label(for="title") Title 
       input(name="title" type="text" id="title")

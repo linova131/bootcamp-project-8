@@ -21,7 +21,7 @@ router.get('/', (req, res, next) => {
 //Get /books, show full list of books
 router.get('/books', asyncHandler(async(req, res, next) => {
   const books = await Book.findAll({
-    order: [["title", "ASC"]]
+    order: [["id", "ASC"]]
   });
 
   // return res.json(books);
@@ -36,7 +36,7 @@ router.get('/books/new', (req, res, next) => {
 //Post /books/new, posts a new book to the database
 router.post('/books/new', asyncHandler(async(req, res) => {
   const book = await Book.create(req.body);
-  res.render('/books/' + book.id);
+  res.redirect("/books/" + book.id);
 }));
 
 //Get /books/:id, shows book detail form
@@ -54,7 +54,9 @@ router.post('/books/:id', asyncHandler(async(req, res) => {
 
 //Post /books/:id/delete, deletes a book
 router.post('/books/:id/delete', asyncHandler(async(req, res) => {
-  res.render('update_book');
+  const book = await Book.findByPk(req.params.id);
+  await book.destroy();
+  res.redirect('/books');
 }));
 
 module.exports = router;

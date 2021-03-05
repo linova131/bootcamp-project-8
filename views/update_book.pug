@@ -2,6 +2,9 @@ extends layout
 
 block content
   h1=title
+
+  include errors
+
   form(action="/books/" + book.id, method="post")
     p
       label(for="title") Title 
@@ -17,7 +20,7 @@ block content
       input(name="year" type="text" id="year" value=`${book.year}`)
     p
       input(type="submit" value="Update Book")
-  form(action="post")
+  form(action="/books/" + book.id + "/delete", method="post")
     p
       a.button(href="/") Cancel
     p
