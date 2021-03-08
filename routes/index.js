@@ -115,8 +115,6 @@ router.post('/books/search/page/:id', asyncHandler(async(req,res) => {
   let searchTerm = req.body.search
   console.log(searchTerm);
   const books = await Book.findAll({
-    limit: pageSize,
-    offset: (pageSize * req.params.id) - pageSize,
     where: {
       [Op.or]: [
         {title: {
@@ -136,10 +134,9 @@ router.post('/books/search/page/:id', asyncHandler(async(req,res) => {
     },
     order: [["id", "ASC"]]
   });
-  const count = books.length;
-  const buttons = createPaginationButtons(count, pageSize)
+
   // return res.json(books);
-  res.render('search_results', {books: books, title: "Search Results", buttons: buttons});
+  res.render('search_results', {books: books, title: "Search Results"});
 }))
 
 module.exports = router;
