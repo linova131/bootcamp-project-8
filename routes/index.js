@@ -44,11 +44,9 @@ router.post('/books/new', asyncHandler(async(req, res) => {
     res.redirect("/books/" + book.id);
   } catch (error) {
     if (error.name === "SequelizeValidationError") {
-      console.log('HEY HEY, THE SEQUELIZEVALIDATE ERROR HANDLER TRIGGERED')
       book = await Book.build(req.body);
       res.render("new_book", {book: book, errors: error.errors})
     } else {
-      console.log(error.name);
       throw error;
     }
   }
@@ -57,33 +55,29 @@ router.post('/books/new', asyncHandler(async(req, res) => {
 //Get /books/:id, shows book detail form
 router.get('/books/:id', asyncHandler(async(req, res) => {
   const book = await Book.findByPk(req.params.id);
-  res.render('update_book', {book: book, title: "Edit Book"});
+  res.render('update_book', {book: book});
 }));
 
 //Post /books/:id, updates book info in the database
 router.post('/books/:id', asyncHandler(async(req, res) => {
-  const book = await Book.findByPk(req.params.id);
-  await book.update(req.body);
-  res.redirect("/books/" + book.id);
+  // const book = await Book.findByPk(req.params.id);
+  // await book.update(req.body);
+  // res.redirect("/books/" + book.id);
 
-  // let book; 
-  // try {
-  //   book = await Book.findByPk(req.params.id);
-  //   if (book) {
-  //     await book.update(req.body);
-  //     res.redirect("/books/" + book.id);
-  //   } else {
-  //     res.sendStatus(404);      
-  //   } 
-  // } catch (error) {
-  //   if(error.name === "SequelizeValidationError") {
-  //     book = await Book.build(req.body);
-  //     book.id = req.params.id; // make sure correct article gets updated
-  //     res.render("books/" + book.id, { book: book })
-  //   } else {
-  //     throw error;
-  //   }
-  // }
+  let book; 
+  try {
+    const book = await Book.findByPk(req.params.id);
+    await book.update(req.body);
+    res.redirect("/books/" + book.id);
+  } catch (error) {
+    if(error.name === "SequelizeValidationError") {
+      book = await Book.build(req.body);
+      book.id = req.params.id; // make sure correct article gets updated
+      res.render(`update_book`, { book: book, errors: error.errors })
+    } else {
+      throw error;
+    }
+  }
 }));
 
 //Post /books/:id/delete, deletes a book

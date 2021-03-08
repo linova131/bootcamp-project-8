@@ -1,7 +1,9 @@
 extends layout
 
 block content
-  h1=title
+  h1 Update Book
+
+  include validate_error
 
   form(action="/books/" + book.id, method="post")
     p
