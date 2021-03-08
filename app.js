@@ -11,6 +11,7 @@ var app = express();
 
 //Import Sequelize and Authenticate
 const {sequelize} = require('./models');
+const Op = sequelize.Op;
 
 (async () => {
   try {

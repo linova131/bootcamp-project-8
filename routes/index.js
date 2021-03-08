@@ -1,6 +1,8 @@
+const e = require('express');
 var express = require('express');
 var router = express.Router();
 const Book = require('../models').Book;
+const {Op} = require("sequelize");
 
 const pageSize = 8
 
@@ -72,14 +74,19 @@ router.post('/books/new', asyncHandler(async(req, res) => {
 }));
 
 //Get /books/:id, shows book detail form
-router.get('/books/:id', asyncHandler(async(req, res) => {
+router.get('/books/:id', asyncHandler(async(req, res, next) => {
   const book = await Book.findByPk(req.params.id);
-  res.render('update_book', {book: book});
+  if (book) {
+    res.render('update_book', {book: book});
+  } else {
+    const err = new Error('Page Not Found');
+    err.status = 404;
+    next(err);
+  }
 }));
 
 //Post /books/:id, updates book info in the database
 router.post('/books/:id', asyncHandler(async(req, res) => {
-
   let book; 
   try {
     const book = await Book.findByPk(req.params.id);
@@ -103,17 +110,36 @@ router.post('/books/:id/delete', asyncHandler(async(req, res) => {
   res.redirect('/books');
 }));
 
-//Get /books/search, displays new range of books
-router.get('/books/search/page/:id', asyncHandler(async(req,res) => {
+//Post /books/search, displays new search results
+router.post('/books/search/page/:id', asyncHandler(async(req,res) => {
+  let searchTerm = req.body.search
+  console.log(searchTerm);
   const books = await Book.findAll({
     limit: pageSize,
     offset: (pageSize * req.params.id) - pageSize,
+    where: {
+      [Op.or]: [
+        {title: {
+          [Op.substring]: searchTerm,
+        }},
+        {author: {
+          [Op.substring]: searchTerm,
+        }},
+        {genre: {
+          [Op.substring]: searchTerm,
+        }},
+        {year: {
+          [Op.substring]: searchTerm,
+        }},
+      ],
+  
+    },
     order: [["id", "ASC"]]
   });
-  const count = await Book.count();
+  const count = books.length;
   const buttons = createPaginationButtons(count, pageSize)
   // return res.json(books);
-  res.render('index', {books: books, title: "Search Results", buttons: buttons});
+  res.render('search_results', {books: books, title: "Search Results", buttons: buttons});
 }))
 
 module.exports = router;
