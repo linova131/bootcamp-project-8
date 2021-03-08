@@ -27,7 +27,7 @@ function createPaginationButtons(count, pageSize) {
   return buttons;
 }
 
-/* GET home page. */
+//Redirects to home page
 router.get('/', (req, res, next) => {
   res.redirect('/books');
 });
@@ -37,9 +37,10 @@ router.get('/books', (req, res, next) => {
 })
 
 //Get /books, show full list of books
-router.get('/books/page/:num', asyncHandler(async(req, res, next) => {
+router.get('/books/page/:id', asyncHandler(async(req, res, next) => {
   const books = await Book.findAll({
     limit: pageSize,
+    offset: (pageSize * req.params.id) - pageSize,
     order: [["id", "ASC"]]
   });
   const count = await Book.count();
