@@ -103,4 +103,17 @@ router.post('/books/:id/delete', asyncHandler(async(req, res) => {
   res.redirect('/books');
 }));
 
+//Get /books/search, displays new range of books
+router.get('/books/search/page/:id', asyncHandler(async(req,res) => {
+  const books = await Book.findAll({
+    limit: pageSize,
+    offset: (pageSize * req.params.id) - pageSize,
+    order: [["id", "ASC"]]
+  });
+  const count = await Book.count();
+  const buttons = createPaginationButtons(count, pageSize)
+  // return res.json(books);
+  res.render('index', {books: books, title: "Search Results", buttons: buttons});
+}))
+
 module.exports = router;
